@@ -11,7 +11,7 @@ from config.settings import settings
 logger = logging.getLogger(__name__)
 
 
-# ── Custom exceptions ─────────────────────────────────────────────────────────
+#  Custom exceptions ─
 
 class SearchError(Exception):
     """Base exception for all search failures."""
@@ -29,7 +29,7 @@ class SearchEmptyError(SearchError):
     """Raised when Tavily returns zero results for a query."""
 
 
-# ── Client singleton ──────────────────────────────────────────────────────────
+#  Client singleton 
 
 def _get_client() -> TavilyClient:
     """
@@ -52,7 +52,7 @@ def _client_singleton() -> TavilyClient:
     return _client
 
 
-# ── Core search function ──────────────────────────────────────────────────────
+#  Core search function 
 
 def search(
     query: str,
@@ -120,7 +120,7 @@ def search(
     return results
 
 
-# ── Result parsing ────────────────────────────────────────────────────────────
+#  Result parsing 
 
 def _parse_results(raw: dict[str, Any]) -> list[SearchResult]:
     """
@@ -180,7 +180,7 @@ def _truncate(text: str, max_chars: int) -> str:
     return text[:max_chars].rsplit(" ", 1)[0] + " …"
 
 
-# ── Batch search helper ───────────────────────────────────────────────────────
+#  Batch search helper ─
 
 def batch_search(
     queries: list[str],

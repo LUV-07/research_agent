@@ -356,11 +356,10 @@ html, body, [data-testid="stAppViewContainer"] {
 #  Constants ─
 
 # TO RUN ON LAMBDA
-#API_BASE = "https://24w35xlb2a.execute-api.ap-south-1.amazonaws.com"
+#API_BASE = "http://127.0.0.1:8000"
 
 
 # TO RUN ON LOCAL SYSTEM
-
 API_BASE = "http://127.0.0.1:8000"
 
 #  Session state ─

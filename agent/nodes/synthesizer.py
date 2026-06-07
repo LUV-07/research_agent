@@ -12,11 +12,11 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-# ── Prompt ────────────────────────────────────────────────────────────────────
+#  Prompt 
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / "synthesizer_prompt.txt"
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
+#  LLM 
 _llm = ChatGroq(
     model=settings.groq_model,
     api_key=settings.groq_api_key,
@@ -25,7 +25,7 @@ _llm = ChatGroq(
 )
 
 
-# ── Node function ─────────────────────────────────────────────────────────────
+#  Node function ─
 
 def synthesizer_node(state: AgentState) -> dict:
     """
@@ -95,7 +95,7 @@ def synthesizer_node(state: AgentState) -> dict:
     }
 
 
-# ── Input formatter ───────────────────────────────────────────────────────────
+#  Input formatter ─
 
 def _format_synthesizer_input(query: str, research_data: list) -> str:
     """
@@ -132,7 +132,7 @@ def _format_synthesizer_input(query: str, research_data: list) -> str:
     return "\n".join(lines)
 
 
-# ── Output parser ─────────────────────────────────────────────────────────────
+#  Output parser ─
 
 def _parse_output(
     raw_text: str, research_data: list
@@ -171,7 +171,7 @@ def _parse_output(
         return _error_report("(parse failed)", str(exc)), 0, []
 
 
-# ── Fallback report templates ─────────────────────────────────────────────────
+#  Fallback report templates ─
 
 def _empty_report(query: str) -> str:
     return (

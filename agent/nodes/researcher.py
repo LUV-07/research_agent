@@ -13,11 +13,11 @@ from tools.search import batch_search, SearchError
 
 logger = logging.getLogger(__name__)
 
-# ── Prompt ────────────────────────────────────────────────────────────────────
+#  Prompt 
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / "researcher_prompt.txt"
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
+#  LLM
 _llm = ChatGroq(
     model=settings.groq_model,
     api_key=settings.groq_api_key,
@@ -26,7 +26,7 @@ _llm = ChatGroq(
 )
 
 
-# ── Node function ─────────────────────────────────────────────────────────────
+#  Node function
 
 def researcher_node(state: AgentState) -> dict:
     """
@@ -63,7 +63,7 @@ def researcher_node(state: AgentState) -> dict:
             "Researcher node (first pass) | %d sub-questions", len(queries)
         )
 
-    # ── 1. Web search ─────────────────────────────────────────────────────────
+    #  1. Web search ─
     try:
         search_results: dict[str, list[SearchResult]] = batch_search(
             queries, max_results=settings.tavily_max_results
@@ -76,7 +76,7 @@ def researcher_node(state: AgentState) -> dict:
         logger.warning("Researcher: no search results returned for any query")
         return {"error": "All searches returned empty results."}
 
-    # ── 2. LLM synthesis per sub-question ─────────────────────────────────────
+    #  2. LLM synthesis per sub-question ─
     new_notes: list[ResearchData] = []
     new_sources: list[str] = []
 
@@ -85,7 +85,7 @@ def researcher_node(state: AgentState) -> dict:
         new_notes.append(note)
         new_sources.extend(sources)
 
-    # ── 3. Merge with previous research on loop-backs ─────────────────────────
+    #  3. Merge with previous research on loop-backs ─
     if is_retry:
         existing = state.get("research_data", [])
         merged = _merge_research(existing, new_notes)
@@ -113,7 +113,7 @@ def researcher_node(state: AgentState) -> dict:
     }
 
 
-# ── Synthesis helper ──────────────────────────────────────────────────────────
+#  Synthesis helper 
 
 def _synthesise(
     question: str, results: list[SearchResult]
@@ -204,7 +204,7 @@ def _parse_note(
         return ResearchData(sub_question=question, results=results)
 
 
-# ── Merge helper ──────────────────────────────────────────────────────────────
+#  Merge helper─
 
 def _merge_research(
     existing: list[ResearchData], new_notes: list[ResearchData]

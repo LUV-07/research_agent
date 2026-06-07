@@ -56,18 +56,31 @@ def _get_redis() -> redis.Redis | None:
     if _redis_client is not None:
         return _redis_client
 
+    # Get Redis URL — clean it in case .env has extra content
+    raw_url = settings.redis_url.strip()
+
+    # Extract just the URL if it contains extra CLI flags
+    for prefix in ["redis-cli --tls -u ", "redis-cli -u "]:
+        if prefix in raw_url:
+            raw_url = raw_url.split(prefix)[-1].strip()
+
+    # Ensure correct scheme
+    if not raw_url.startswith(("redis://", "rediss://", "unix://")):
+        logger.warning("Redis URL has invalid scheme — caching disabled")
+        return None
+
     try:
         client = redis.from_url(
-            settings.redis_url,
-            decode_responses=True,     # always return str, never bytes
-            socket_connect_timeout=2,  # fail fast if Redis is down
+            raw_url,
+            decode_responses=True,
+            socket_connect_timeout=2,
             socket_timeout=2,
         )
-        client.ping()                  # confirm the connection is live
+        client.ping()
         _redis_client = client
-        logger.info("Redis connected | url=%s", settings.redis_url)
+        logger.info("Redis connected | url=%s", raw_url)
         return _redis_client
-    except Exception as exc:           # catch ALL errors including ValueError on bad URL
+    except Exception as exc:
         logger.warning(
             "Redis unavailable — caching disabled (%s: %s)",
             type(exc).__name__,

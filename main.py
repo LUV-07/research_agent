@@ -1,9 +1,9 @@
 from __future__ import annotations  # must be the very first statement
 
-# ── Path fix ──────────────────────────────────────────────────────────────────
+# Path fix─
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# ─────────────────────────────────────────────────────────────────────────────
+#────
 
 import logging
 import os
@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-# ── LangSmith — must be configured before any LangChain imports ───────────────
+# LangSmith — must be configured before any LangChain imports
 from config.settings import settings
 
 os.environ.setdefault("LANGCHAIN_TRACING_V2",  str(settings.langchain_tracing_v2).lower())
@@ -26,7 +26,7 @@ os.environ.setdefault("LANGCHAIN_ENDPOINT",    settings.langchain_endpoint)
 os.environ.setdefault("LANGCHAIN_API_KEY",     settings.langchain_api_key)
 os.environ.setdefault("LANGCHAIN_PROJECT",     settings.langchain_project)
 
-# ── Rest of imports (after env vars are set) ──────────────────────────────────
+# Rest of imports (after env vars are set)───
 from agent.graph import run_research
 from redis_cache.cache import cache_health, cache_result, get_cached_result, invalidate
 
@@ -38,7 +38,7 @@ logging.basicConfig(
 )
 
 
-# ── Lifespan ──────────────────────────────────────────────────────────────────
+# Lifespan─
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
     logger.info("Research Agent API shutting down")
 
 
-# ── App ────────────────────────────────────────────────────────────────────────
+# App
 
 app = FastAPI(
     title="Autonomous Research Agent",
@@ -72,7 +72,7 @@ app.add_middleware(
 )
 
 
-# ── Request / Response models ──────────────────────────────────────────────────
+# Request / Response models
 
 class ResearchRequest(BaseModel):
     query: str = Field(
@@ -116,7 +116,7 @@ class CacheInvalidateResponse(BaseModel):
     invalidated: bool
 
 
-# ── Middleware: request timing ────────────────────────────────────────────────
+# Middleware: request timing
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
@@ -127,7 +127,7 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
-# ── POST /research ─────────────────────────────────────────────────────────────
+# POST /research─
 
 @app.post(
     "/research",
@@ -157,7 +157,7 @@ async def research(req: ResearchRequest) -> ResearchResponse:
 
     logger.info("POST /research | query=%r | force_refresh=%s", query, req.force_refresh)
 
-    # ── 1. Cache lookup ───────────────────────────────────────────────────────
+    # 1. Cache lookup
     if not req.force_refresh:
         cached = get_cached_result(query)
         if cached:
@@ -172,7 +172,7 @@ async def research(req: ResearchRequest) -> ResearchResponse:
                 elapsed_seconds=round(time.perf_counter() - t0, 3),
             )
 
-    # ── 2. Run graph ──────────────────────────────────────────────────────────
+    # 2. Run graph
     try:
         final_state = run_research(query)
     except Exception as exc:
@@ -182,7 +182,7 @@ async def research(req: ResearchRequest) -> ResearchResponse:
             detail=f"Research pipeline failed: {exc}",
         )
 
-    # ── 3. Validate output ────────────────────────────────────────────────────
+    # 3. Validate output
     report = final_state.get("final_report", "")
     if not report:
         raise HTTPException(
@@ -190,7 +190,7 @@ async def research(req: ResearchRequest) -> ResearchResponse:
             detail="Research pipeline completed but produced an empty report.",
         )
 
-    # ── 4. Cache successful result ────────────────────────────────────────────
+    # 4. Cache successful result
     cache_result(query, final_state)
 
     elapsed = round(time.perf_counter() - t0, 3)
@@ -213,7 +213,7 @@ async def research(req: ResearchRequest) -> ResearchResponse:
     )
 
 
-# ── GET /health ────────────────────────────────────────────────────────────────
+# GET /health
 
 @app.get(
     "/health",
@@ -242,7 +242,7 @@ async def health() -> HealthResponse:
     )
 
 
-# ── DELETE /research/cache ────────────────────────────────────────────────────
+# DELETE /research/cache 
 
 @app.delete(
     "/research/cache",
@@ -260,7 +260,7 @@ async def invalidate_cache(req: CacheInvalidateRequest) -> CacheInvalidateRespon
     return CacheInvalidateResponse(query=req.query, invalidated=deleted)
 
 
-# ── Global exception handler ──────────────────────────────────────────────────
+# Global exception handler
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -271,7 +271,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# ── Dev runner ─────────────────────────────────────────────────────────────────
+# Dev runner
 
 if __name__ == "__main__":
     uvicorn.run(
@@ -282,5 +282,5 @@ if __name__ == "__main__":
         log_level="info",
     )
 
-# ── AWS Lambda handler ───────────────────────
+# AWS Lambda handler 
 lambda_handler = Mangum(app, lifespan="off")

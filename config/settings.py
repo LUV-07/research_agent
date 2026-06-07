@@ -16,14 +16,14 @@ class Settings(BaseSettings):
         extra="ignore",            # ignore unknown env vars silently
     )
 
-    # ── Groq LLM ──────────────────────────────────────────────────────────────
+    #  Groq LLM 
     groq_api_key: str = Field(..., description="Groq API key (required)")
     groq_model: str = Field(
         default="llama-3.1-8b-instant",
         description="Groq model identifier",
     )
 
-    # ── Tavily Search ─────────────────────────────────────────────────────────
+    #  Tavily Search ─
     tavily_api_key: str = Field(..., description="Tavily API key (required)")
     tavily_max_results: int = Field(
         default=3,
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         description="Max search results per sub-question",
     )
 
-    # ── LangSmith Observability ───────────────────────────────────────────────
+    #  LangSmith Observability ─
     langchain_tracing_v2: bool = Field(
         default=True,
         description="Enable LangSmith tracing",
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
         description="LangSmith project name",
     )
 
-    # ── Redis ─────────────────────────────────────────────────────────────────
+    #  Redis ─
     redis_url: str = Field(
         default="redis://localhost:6379/0",
         description="Redis connection URL",
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
         description="Cache TTL in seconds (minimum 60)",
     )
 
-    # ── Agent Behaviour ───────────────────────────────────────────────────────
+    #  Agent Behaviour ─
     max_critic_iterations: int = Field(
         default=2,
         ge=1,
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
         description="Max Critic → Researcher feedback loops",
     )
 
-    # ── FastAPI ───────────────────────────────────────────────────────────────
+    #  FastAPI ─
     api_host: str = Field(default="0.0.0.0")
     api_port: int = Field(default=8000, ge=1024, le=65535)
     api_reload: bool = Field(
@@ -76,7 +76,7 @@ class Settings(BaseSettings):
         description="Uvicorn auto-reload (dev only)",
     )
 
-    # ── Validators ────────────────────────────────────────────────────────────
+    #  Validators 
     @field_validator("groq_api_key")
     @classmethod
     def groq_key_must_not_be_placeholder(cls, v: str) -> str:
@@ -109,6 +109,6 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# ── Convenience singleton ─────────────────────────────────────────────────────
+#  Convenience singleton ─
 # Most modules can simply do:  from config.settings import settings
 settings: Settings = get_settings()

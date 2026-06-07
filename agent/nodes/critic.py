@@ -12,11 +12,11 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-# ── Prompt ────────────────────────────────────────────────────────────────────
+# Prompt 
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / "critic_prompt.txt"
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
+# LLM 
 _llm = ChatGroq(
     model=settings.groq_model,
     api_key=settings.groq_api_key,
@@ -25,7 +25,7 @@ _llm = ChatGroq(
 )
 
 
-# ── Node function ─────────────────────────────────────────────────────────────
+#  Node function 
 
 def critic_node(state: AgentState) -> dict:
     """
@@ -51,7 +51,7 @@ def critic_node(state: AgentState) -> dict:
         len(research_data),
     )
 
-    # ── Hard cap guard ────────────────────────────────────────────────────────
+    #  Hard cap guard 
     if iteration >= settings.max_critic_iterations:
         logger.warning(
             "Critic: max iterations (%d) reached — force-passing to Synthesizer",
@@ -72,7 +72,7 @@ def critic_node(state: AgentState) -> dict:
             "iteration_count": iteration,
         }
 
-    # ── Build critic input ────────────────────────────────────────────────────
+    #  Build critic input 
     human_content = _format_critic_input(query, research_data, iteration)
 
     messages = [
@@ -113,7 +113,7 @@ def critic_node(state: AgentState) -> dict:
     }
 
 
-# ── Router (conditional edge) ─────────────────────────────────────────────────
+#  Router (conditional edge) 
 
 def route_after_critic(state: AgentState) -> str:
     """
@@ -130,8 +130,7 @@ def route_after_critic(state: AgentState) -> str:
     return "researcher"
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
+# ── Helpers 
 def _format_critic_input(query: str, research_data: list, iteration: int) -> str:
     """Serialise the research notes into the prompt format the critic expects."""
     lines = [

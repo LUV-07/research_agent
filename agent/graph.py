@@ -14,7 +14,7 @@ import time
 logger = logging.getLogger(__name__)
 
 
-# ── Node name constants ────────────────────────────────────────────────────────
+#  Node name constants 
 # Define as constants so typos are caught at import time, not at runtime.
 
 PLANNER    = "planner"
@@ -23,7 +23,7 @@ CRITIC     = "critic"
 SYNTHESIZER = "synthesizer"
 
 
-# ── Graph builder ──────────────────────────────────────────────────────────────
+#  Graph builder 
 
 def build_graph() -> StateGraph:
     """
@@ -34,18 +34,18 @@ def build_graph() -> StateGraph:
     """
     graph = StateGraph(AgentState)
 
-    # ── Register nodes ────────────────────────────────────────────────────────
+    #  Register nodes 
     graph.add_node(PLANNER,     planner_node)
     graph.add_node(RESEARCHER,  researcher_node)
     graph.add_node(CRITIC,      critic_node)
     graph.add_node(SYNTHESIZER, synthesizer_node)
 
-    # ── Static edges ──────────────────────────────────────────────────────────
+    #  Static edges 
     graph.add_edge(START,      PLANNER)      # entry point
     graph.add_edge(PLANNER,    RESEARCHER)   # always plan → research
     graph.add_edge(RESEARCHER, CRITIC)       # always research → critique
 
-    # ── Conditional edge: Critic → (Researcher | Synthesizer) ─────────────────
+    #  Conditional edge: Critic → (Researcher | Synthesizer) ─
     graph.add_conditional_edges(
         source=CRITIC,
         path=route_after_critic,             # returns "researcher" or "synthesizer"
@@ -55,13 +55,13 @@ def build_graph() -> StateGraph:
         },
     )
 
-    # ── Terminal edge ─────────
+    #  Terminal edge ─
     graph.add_edge(SYNTHESIZER, END)
 
     return graph
 
 
-# ── Compiled singleton ────────
+#  Compiled singleton 
 
 def _compile() -> object:
     """Compile the graph once at module import time."""
@@ -77,7 +77,7 @@ def _compile() -> object:
 compiled_graph = _compile()
 
 
-# ── Convenience runner ────────
+#  Convenience runner 
 
 def run_research(query: str) -> AgentState:
     """

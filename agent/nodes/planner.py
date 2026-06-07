@@ -12,11 +12,11 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-# ── Prompt ────────────────────────────────────────────────────────────────────
+# ── Prompt
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / "planner_prompt.txt"
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
+# ── LLM 
 _llm = ChatGroq(
     model=settings.groq_model,
     api_key=settings.groq_api_key,
@@ -25,7 +25,7 @@ _llm = ChatGroq(
 )
 
 
-# ── Node function ─────────────────────────────────────────────────────────────
+# ── Node function 
 
 def planner_node(state: AgentState) -> dict:
     """
@@ -69,7 +69,7 @@ def planner_node(state: AgentState) -> dict:
         }
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ── Helpers 
 
 def _parse_sub_questions(raw_text: str, original_query: str) -> list[str]:
     """
