@@ -56,21 +56,63 @@ went into each node made debugging much faster.
 
 ## How to run it
 
-**On Lambda (easiest — no local setup needed):**
-```bash
+### Option 1 — Lambda (easiest, no local setup needed)
+
+Point Streamlit to the Lambda API:
+```powershell
+(Get-Content streamlit_app.py) -replace 'API_BASE = .*', 'API_BASE = "https://24w35xlb2a.execute-api.ap-south-1.amazonaws.com"' | Set-Content streamlit_app.py
+```
+
+Then run:
+```powershell
 streamlit run streamlit_app.py
 ```
 
-**Fully local:**
-```bash
+---
+
+### Option 2 — Fully Local
+
+Point Streamlit to the local API:
+```powershell
+(Get-Content streamlit_app.py) -replace 'API_BASE = .*', 'API_BASE = "http://127.0.0.1:8000"' | Set-Content streamlit_app.py
+```
+
+Then open 3 terminals:
+
+**Terminal 1 — Start Redis:**
+```powershell
 docker compose up -d
-python -m uvicorn main:app --reload
+```
+
+**Terminal 2 — Start FastAPI:**
+```powershell
+.venv\Scripts\activate
+python -m uvicorn main:app --reload --reload-exclude "streamlit_app.py"
+```
+
+**Terminal 3 — Start Streamlit:**
+```powershell
+.venv\Scripts\activate
 streamlit run streamlit_app.py
 ```
 
 Open http://localhost:8501
 
-See COMMANDS.md for all commands and shortcuts.
+---
+
+### Switch between Local and Lambda anytime
+
+```powershell
+# Switch to Lambda
+(Get-Content streamlit_app.py) -replace 'API_BASE = .*', 'API_BASE = "https://24w35xlb2a.execute-api.ap-south-1.amazonaws.com"' | Set-Content streamlit_app.py
+
+# Switch to Local
+(Get-Content streamlit_app.py) -replace 'API_BASE = .*', 'API_BASE = "http://127.0.0.1:8000"' | Set-Content streamlit_app.py
+```
+
+Always restart Streamlit after switching.
+
+See COMMANDS.md for all other commands.
 
 ---
 
