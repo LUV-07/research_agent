@@ -1,4 +1,4 @@
-# Research Agent
+# RESEARCH AGENT
 
 I built this to learn how agentic AI systems work end to end.
 It takes a research question, breaks it down automatically,
@@ -54,7 +54,7 @@ went into each node made debugging much faster.
 
 ---
 
-## How to run it
+## How To Run It
 
 ### Option 1 — Lambda (easiest, no local setup needed)
 
